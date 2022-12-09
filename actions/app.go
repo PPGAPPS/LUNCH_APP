@@ -4,12 +4,9 @@ import (
 	"net/http"
 	"sync"
 
-	"lunch/locales"
-	"lunch/models"
 	"lunch/public"
 
 	"github.com/gobuffalo/buffalo"
-	"github.com/gobuffalo/buffalo-pop/v3/pop/popmw"
 	"github.com/gobuffalo/envy"
 	csrf "github.com/gobuffalo/mw-csrf"
 	forcessl "github.com/gobuffalo/mw-forcessl"
@@ -50,23 +47,17 @@ func App() *buffalo.App {
 
 		// Automatically redirect to SSL
 		app.Use(forceSSL())
-
-		// Log request parameters (filters apply).
 		app.Use(paramlogger.ParameterLogger)
-
-		// Protect against CSRF attacks. https://www.owasp.org/index.php/Cross-Site_Request_Forgery_(CSRF)
-		// Remove to disable this.
 		app.Use(csrf.New)
 
 		// Wraps each request in a transaction.
 		//   c.Value("tx").(*pop.Connection)
 		// Remove to disable this.
-		app.Use(popmw.Transaction(models.DB))
+		// app.Use(popmw.Transaction(models.DB))
 		// Setup and use translations:
-		app.Use(translations())
+		// app.Use(translations())
 
 		app.GET("/", HomeHandler)
-
 		app.ServeFiles("/", http.FS(public.FS())) // serve files from the public directory
 	})
 
@@ -77,13 +68,13 @@ func App() *buffalo.App {
 // and will return a middleware to use to load the correct locale for each
 // request.
 // for more information: https://gobuffalo.io/en/docs/localization
-func translations() buffalo.MiddlewareFunc {
-	var err error
-	if T, err = i18n.New(locales.FS(), "en-US"); err != nil {
-		app.Stop(err)
-	}
-	return T.Middleware()
-}
+// func translations() buffalo.MiddlewareFunc {
+// 	var err error
+// 	if T, err = i18n.New(locales.FS(), "en-US"); err != nil {
+// 		app.Stop(err)
+// 	}
+// 	return T.Middleware()
+// }
 
 // forceSSL will return a middleware that will redirect an incoming request
 // if it is not HTTPS. "http://example.com" => "https://example.com".

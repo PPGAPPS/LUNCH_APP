@@ -5,10 +5,11 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
 const TerserPlugin = require("terser-webpack-plugin");
 const LiveReloadPlugin = require("webpack-livereload-plugin");
+const { ESBuildMinifyPlugin } = require('esbuild-loader')
 
 const configurator = {
   entries: function(){
-    var entries = {
+    let entries = {
       application: [
         './assets/css/application.scss',
       ],
@@ -31,24 +32,22 @@ const configurator = {
 
       entries[key].push(entry)
     })
+
     return entries
   },
 
   plugins() {
-    var plugins = [
-      new Webpack.ProvidePlugin({
-        $: "jquery",
-        jQuery: "jquery"
-      }),
+    return [
+      new Webpack.ProvidePlugin({}),
       new MiniCssExtractPlugin({filename: "[name].[contenthash].css"}),
       new CopyWebpackPlugin({
         patterns: [{
           from: "./assets",
           globOptions: {
             ignore: [
-              "**/assets/css/**",
-              "**/assets/js/**",
-              "**/assets/src/**",
+              "*/assets/css/*",
+              "*/assets/js/*",
+              "*/assets/src/*",
             ]
           }
         }],
@@ -56,8 +55,6 @@ const configurator = {
       new Webpack.LoaderOptionsPlugin({minimize: true,debug: false}),
       new WebpackManifestPlugin({fileName: "manifest.json",publicPath: ""})
     ];
-
-    return plugins
   },
 
   moduleOptions: function() {
@@ -73,10 +70,9 @@ const configurator = {
           ]
         },
         { test: /\.tsx?$/, use: "ts-loader", exclude: /node_modules/},
-        { test: /\.jsx?$/,loader: "babel-loader",exclude: /node_modules/ },
+        { test: /\.js$/, loader: 'esbuild-loader', options: { target: 'es2015' } },
         { test: /\.(woff|woff2|ttf|svg)(\?v=\d+\.\d+\.\d+)?$/,use: "url-loader"},
         { test: /\.eot(\?v=\d+\.\d+\.\d+)?$/,use: "file-loader" },
-        { test: /\.go$/, use: "gopherjs-loader"}
       ]
     }
   },
@@ -87,7 +83,7 @@ const configurator = {
     // with whatever GO_ENV is set to or "development".
     const env = process.env.NODE_ENV || "development";
 
-    var config = {
+    let config = {
       mode: env,
       entry: configurator.entries(),
       output: {
@@ -107,21 +103,10 @@ const configurator = {
       return config
     }
 
-    const terser = new TerserPlugin({
-      terserOptions: {
-        compress: {},
-        mangle: {
-          keep_fnames: true
-        },
-        output: {
-          comments: false,
-        },
-      },
-      extractComments: false,
-    })
-
     config.optimization = {
-      minimizer: [terser]
+      minimizer: [
+        new ESBuildMinifyPlugin({ target: 'es2015', css: true })
+      ]
     }
 
     return config
