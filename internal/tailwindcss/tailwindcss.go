@@ -40,7 +40,7 @@ func divWrapper(opts tags.Options, fn func(opts tags.Options) tags.Body) *tags.T
 	if opts["errors"] != nil && len(opts["errors"].([]string)) > 0 {
 		divClass = fmt.Sprintf("%v %v", divClass, "has-error")
 		hasErrors = true
-		errors = opts["errors"].([]string)
+		errors = append(errors, opts["errors"].([]string)...)
 
 		delete(opts, "errors")
 	}
