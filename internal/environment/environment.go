@@ -20,6 +20,7 @@ const (
 	SessionName      = "_lunch_session"
 )
 
+// Current returns the current environment.
 func Current() string {
 	if env := os.Getenv("GO_ENV"); env != "" {
 		return env
@@ -28,6 +29,7 @@ func Current() string {
 
 }
 
+// BaseURL returns the base URL for the application.
 func BaseURL() string {
 	baseHost := envy.Get("BASE_URL", fmt.Sprintf("http://localhost:%s", envy.Get("PORT", "3000")))
 
@@ -39,6 +41,7 @@ func BaseURL() string {
 	return fmt.Sprintf("http://%s", baseHost)
 }
 
+// LoginURL returns the URL for the login page.
 func LoginURL() string {
-	return fmt.Sprintf("%s/login", BaseURL())
+	return fmt.Sprintf("%s/auth/new", BaseURL())
 }
