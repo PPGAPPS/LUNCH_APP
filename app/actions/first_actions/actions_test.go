@@ -1,7 +1,7 @@
-package actions
+package first_actions_test
 
 import (
-	"os"
+	"lunch/app"
 	"testing"
 
 	"github.com/gobuffalo/suite/v4"
@@ -12,13 +12,12 @@ type ActionSuite struct {
 }
 
 func Test_ActionSuite(t *testing.T) {
-	action, err := suite.NewActionWithFixtures(App(), os.DirFS("../fixtures"))
+	bapp, err := app.New()
 	if err != nil {
-		t.Fatal(err)
+		t.Error(err)
+		t.FailNow()
 	}
 
-	as := &ActionSuite{
-		Action: action,
-	}
+	as := &ActionSuite{suite.NewAction(bapp)}
 	suite.Run(t, as)
 }

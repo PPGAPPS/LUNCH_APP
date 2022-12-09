@@ -1,19 +1,28 @@
-package actions
+package app
 
 import (
-	"net/http"
 	"sync"
 
-	"lunch/public"
+	"lunch/internal/environment"
 
 	"github.com/gobuffalo/buffalo"
 	"github.com/gobuffalo/envy"
-	csrf "github.com/gobuffalo/mw-csrf"
 	forcessl "github.com/gobuffalo/mw-forcessl"
 	i18n "github.com/gobuffalo/mw-i18n/v2"
-	paramlogger "github.com/gobuffalo/mw-paramlogger"
 	"github.com/unrolled/secure"
 )
+
+func New() (*buffalo.App, error) {
+	app := buffalo.New(buffalo.Options{
+		Env:         environment.Current(),
+		SessionName: environment.SessionName,
+
+		// We will start our worker manually
+		WorkerOff: true,
+	})
+	setRoutes(app)
+	return app, nil
+}
 
 // ENV is used to help switch settings based on where the
 // application is being run. Default is "development".
@@ -38,31 +47,6 @@ var (
 // `ServeFiles` is a CATCH-ALL route, so it should always be
 // placed last in the route declarations, as it will prevent routes
 // declared after it to never be called.
-func App() *buffalo.App {
-	appOnce.Do(func() {
-		app = buffalo.New(buffalo.Options{
-			Env:         ENV,
-			SessionName: "_lunch_session",
-		})
-
-		// Automatically redirect to SSL
-		app.Use(forceSSL())
-		app.Use(paramlogger.ParameterLogger)
-		app.Use(csrf.New)
-
-		// Wraps each request in a transaction.
-		//   c.Value("tx").(*pop.Connection)
-		// Remove to disable this.
-		// app.Use(popmw.Transaction(models.DB))
-		// Setup and use translations:
-		// app.Use(translations())
-
-		app.GET("/", HomeHandler)
-		app.ServeFiles("/", http.FS(public.FS())) // serve files from the public directory
-	})
-
-	return app
-}
 
 // translations will load locale files, set up the translator `actions.T`,
 // and will return a middleware to use to load the correct locale for each
@@ -83,7 +67,7 @@ func App() *buffalo.App {
 // for more information: https://github.com/unrolled/secure/
 func forceSSL() buffalo.MiddlewareFunc {
 	return forcessl.Middleware(secure.Options{
-		SSLRedirect:     ENV == "production",
+		SSLRedirect:     ENV == environment.Production,
 		SSLProxyHeaders: map[string]string{"X-Forwarded-Proto": "https"},
 	})
 }

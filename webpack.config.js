@@ -11,12 +11,12 @@ const configurator = {
   entries: function(){
     let entries = {
       application: [
-        './assets/css/application.scss',
+        './app/assets/css/application.scss',
       ],
     }
 
-    Glob.sync("./assets/*/*.*").forEach((entry) => {
-      if (entry === './assets/css/application.scss') {
+    Glob.sync("./appassets/*/*.*").forEach((entry) => {
+      if (entry === './app/assets/css/application.scss') {
         return
       }
 
@@ -35,14 +35,14 @@ const configurator = {
 
     return entries
   },
-
+  
   plugins() {
     return [
       new Webpack.ProvidePlugin({}),
       new MiniCssExtractPlugin({filename: "[name].[contenthash].css"}),
       new CopyWebpackPlugin({
         patterns: [{
-          from: "./assets",
+          from: "./app/assets",
           globOptions: {
             ignore: [
               "*/assets/css/*",

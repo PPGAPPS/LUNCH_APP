@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"lunch/actions"
+	"lunch/app"
 )
 
 // main is the starting point for your Buffalo application.
@@ -13,10 +13,17 @@ import (
 // call `app.Serve()`, unless you don't want to start your
 // application that is. :)
 func main() {
-	app := actions.App()
-	if err := app.Serve(); err != nil {
+	bapp, err := app.New()
+
+	if err != nil {
 		log.Fatal(err)
 	}
+
+	if err := bapp.Serve(); err != nil {
+		log.Fatal(err)
+		return
+	}
+
 }
 
 /*
