@@ -1,4 +1,4 @@
-package actions
+package first_actions_test
 
 import "net/http"
 
